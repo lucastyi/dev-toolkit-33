@@ -1,42 +1,32 @@
 import re
 
-class InputValidator:
-    @staticmethod
-    def validate_email(email):
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if re.match(pattern, email):
-            return True
-        return False
+class ValidationError(Exception):
+    pass
 
-    @staticmethod
-    def validate_phone(phone):
-        pattern = r'^\+?[1-9]\d{1,14}$'
-        if re.match(pattern, phone):
-            return True
-        return False
+def validate_email(email):
+    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not isinstance(email, str):
+        raise ValidationError('Email must be a string')
+    if not re.match(email_regex, email):
+        raise ValidationError('Invalid email format')
+    return True
 
-    @staticmethod
-    def validate_username(username):
-        pattern = r'^[a-zA-Z0-9_]{3,30}$'
-        if re.match(pattern, username):
-            return True
-        return False
 
-    @staticmethod
-    def validate_password(password):
-        if len(password) < 8:
-            return False
-        if not re.search(r'[A-Z]', password):
-            return False
-        if not re.search(r'[a-z]', password):
-            return False
-        if not re.search(r'[0-9]', password):
-            return False
-        return True
+def validate_age(age):
+    if not isinstance(age, int):
+        raise ValidationError('Age must be an integer')
+    if age < 0:
+        raise ValidationError('Age cannot be negative')
+    if age > 120:
+        raise ValidationError('Age is unrealistically high')
+    return True
 
-# Example usage:
-# validator = InputValidator()
-# is_valid_email = validator.validate_email('test@example.com')  # Returns True
-# is_valid_phone = validator.validate_phone('+123456789012')  # Returns True
-# is_valid_username = validator.validate_username('user_name')  # Returns True
-# is_valid_password = validator.validate_password('Password1')  # Returns True
+
+def validate_username(username):
+    if not isinstance(username, str):
+        raise ValidationError('Username must be a string')
+    if not (3 <= len(username) <= 30):
+        raise ValidationError('Username must be between 3 and 30 characters')
+    if not username.isalnum():
+        raise ValidationError('Username must be alphanumeric')
+    return True
