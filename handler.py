@@ -1,25 +1,27 @@
-import json
-from typing import Any, Dict, List
+import time
+import requests
 
-def load_json(file_path: str) -> Any:
-    with open(file_path, 'r') as file:
-        return json.load(file)
+class NetworkOperationError(Exception):
+    pass
 
+def retry_request(url, max_retries=3, delay=2):
+    retries = 0
+    while retries < max_retries:
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Raises an HTTPError for bad responses
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            retries += 1
+            if retries == max_retries:
+                raise NetworkOperationError(f'Failed to fetch {url} after {max_retries} retries') from e
+            time.sleep(delay)
 
-def save_json(file_path: str, data: Any) -> None:
-    with open(file_path, 'w') as file:
-        json.dump(data, file, indent=4)
-
-
-def filter_items_by_key(data: List[Dict[str, Any]], key: str, value: Any) -> List[Dict[str, Any]]:
-    return [item for item in data if item.get(key) == value]
-
-
-def enrich_data(data: List[Dict[str, Any]], enrichment: Dict[str, Any]) -> List[Dict[str, Any]]:
-    for item in data:
-        item.update(enrichment)
-    return data
-
-
-def data_summary(data: List[Dict[str, Any]]) -> Dict[str, int]:
-    return { 'total_items': len(data), 'keys': list(data[0].keys()) if data else [] }
+# Example usage:
+if __name__ == '__main__':
+    url = 'https://api.example.com/data'
+    try:
+        result = retry_request(url)
+        print(result)
+    except NetworkOperationError as e:
+        print(e)
