@@ -1,32 +1,28 @@
-import re
+import time
+import random
+import requests
 
-class ValidationError(Exception):
+class NetworkError(Exception):
     pass
 
-def validate_email(email):
-    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    if not isinstance(email, str):
-        raise ValidationError('Email must be a string')
-    if not re.match(email_regex, email):
-        raise ValidationError('Invalid email format')
-    return True
+def retry_operation(func, max_retries=3, delay=2):
+    for attempt in range(max_retries):
+        try:
+            return func()
+        except (requests.ConnectionError, requests.Timeout) as e:
+            print(f"Attempt {attempt + 1} failed: {e}")
+            time.sleep(delay)
+    raise NetworkError(f"Maximum retries exceeded for {func.__name__}")
 
+def fetch_data(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
 
-def validate_age(age):
-    if not isinstance(age, int):
-        raise ValidationError('Age must be an integer')
-    if age < 0:
-        raise ValidationError('Age cannot be negative')
-    if age > 120:
-        raise ValidationError('Age is unrealistically high')
-    return True
-
-
-def validate_username(username):
-    if not isinstance(username, str):
-        raise ValidationError('Username must be a string')
-    if not (3 <= len(username) <= 30):
-        raise ValidationError('Username must be between 3 and 30 characters')
-    if not username.isalnum():
-        raise ValidationError('Username must be alphanumeric')
-    return True
+if __name__ == '__main__':
+    url = 'https://api.example.com/data'
+    try:
+        data = retry_operation(lambda: fetch_data(url))
+        print('Data fetched successfully:', data)
+    except NetworkError as ne:
+        print(str(ne))
