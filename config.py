@@ -1,52 +1,34 @@
-from typing import Dict, Any
+import json
 
-class Config:
-    """
-    Configuration class to manage settings for the autoclicker.
-    """
-    def __init__(self, settings: Dict[str, Any]) -> None:
-        """
-        Initialize the configuration with provided settings.
-        
-        :param settings: A dictionary containing configuration settings.
-        """
-        self.settings = settings
+DEFAULTS = {
+    'click_interval': 0.1,
+    'max_clicks': 1000,
+    'click_button': 'left',
+    'activate_hotkey': 'F6'
+}
 
-    def get(self, key: str, default: Any = None) -> Any:
-        """
-        Retrieve a value from the settings dictionary.
-        
-        :param key: The key to look for in the settings.
-        :param default: The value to return if the key is not found.
-        :return: The value associated with the key, or default if not found.
-        """
-        return self.settings.get(key, default)
+class ConfigLoader:
+    def __init__(self, config_file):
+        self.config_file = config_file
+        self.config = DEFAULTS.copy()  # Start with defaults
 
-    def set(self, key: str, value: Any) -> None:
-        """
-        Set a value in the settings dictionary.
-        
-        :param key: The key to set in the settings.
-        :param value: The value to associate with the key.
-        """
-        self.settings[key] = value
+    def load(self):
+        try:
+            with open(self.config_file, 'r') as file:
+                user_config = json.load(file)
+                self.config.update(user_config)  # Merge with user config
+        except FileNotFoundError:
+            print(f'Config file {self.config_file} not found, using defaults.')  
+        except json.JSONDecodeError:
+            print('Error decoding JSON, using defaults.')  
 
-    def load_from_file(self, file_path: str) -> None:
-        """
-        Load configuration settings from a file.
-        
-        :param file_path: The path to the configuration file.
-        """
-        import json
-        with open(file_path, 'r') as file:
-            self.settings = json.load(file)
+    def get(self, key):
+        return self.config.get(key, DEFAULTS.get(key))
 
-    def save_to_file(self, file_path: str) -> None:
-        """
-        Save the current settings to a file.
-        
-        :param file_path: The path to save the configuration file.
-        """
-        import json
-        with open(file_path, 'w') as file:
-            json.dump(self.settings, file, indent=4)
+    def set(self, key, value):
+        self.config[key] = value  
+
+if __name__ == '__main__':
+    loader = ConfigLoader('config.json')
+    loader.load()
+    print(loader.get('click_interval'))  # Example usage
