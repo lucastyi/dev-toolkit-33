@@ -1,34 +1,26 @@
 import json
+import os
 
-DEFAULTS = {
-    'click_interval': 0.1,
-    'max_clicks': 1000,
-    'click_button': 'left',
-    'activate_hotkey': 'F6'
-}
+class Config:
+    def __init__(self, filename='config.json'):
+        self.filename = filename
+        self.data = self.load_config()
 
-class ConfigLoader:
-    def __init__(self, config_file):
-        self.config_file = config_file
-        self.config = DEFAULTS.copy()  # Start with defaults
-
-    def load(self):
-        try:
-            with open(self.config_file, 'r') as file:
-                user_config = json.load(file)
-                self.config.update(user_config)  # Merge with user config
-        except FileNotFoundError:
-            print(f'Config file {self.config_file} not found, using defaults.')  
-        except json.JSONDecodeError:
-            print('Error decoding JSON, using defaults.')  
+    def load_config(self):
+        if not os.path.exists(self.filename):
+            return {}
+        with open(self.filename, 'r') as file:
+            return json.load(file)
 
     def get(self, key):
-        return self.config.get(key, DEFAULTS.get(key))
+        return self.data.get(key, None)
 
     def set(self, key, value):
-        self.config[key] = value  
+        self.data[key] = value
+        self.save_config()
 
-if __name__ == '__main__':
-    loader = ConfigLoader('config.json')
-    loader.load()
-    print(loader.get('click_interval'))  # Example usage
+    def save_config(self):
+        with open(self.filename, 'w') as file:
+            json.dump(self.data, file, indent=4)
+
+config = Config()
