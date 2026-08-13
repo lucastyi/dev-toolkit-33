@@ -1,55 +1,28 @@
-from typing import Tuple, Any
+import json
+import os
 
+class DataHandler:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.ensure_file_exists()
 
-def calculate_click_interval(clicks_per_second: float) -> float:
-    """
-    Calculate the interval between clicks in seconds.
+    def ensure_file_exists(self):
+        if not os.path.isfile(self.file_path):
+            with open(self.file_path, 'w') as f:
+                json.dump([], f)
 
-    Args:
-        clicks_per_second (float): The number of clicks desired per second.
+    def read_data(self):
+        with open(self.file_path, 'r') as f:
+            return json.load(f)
 
-    Returns:
-        float: The interval between clicks, in seconds.
-    """
-    return 1.0 / clicks_per_second
+    def write_data(self, data):
+        with open(self.file_path, 'w') as f:
+            json.dump(data, f)
 
+    def append_data(self, new_entry):
+        data = self.read_data()
+        data.append(new_entry)
+        self.write_data(data)
 
-def validate_click_position(position: Tuple[int, int]) -> bool:
-    """
-    Validate that the click position is within screen bounds.
-
-    Args:
-        position (Tuple[int, int]): The x and y coordinates of the click position.
-
-    Returns:
-        bool: True if valid, False otherwise.
-    """
-    x, y = position
-    return 0 <= x <= 1920 and 0 <= y <= 1080
-
-
-def perform_click(position: Tuple[int, int], button: str = 'left') -> None:
-    """
-    Simulate a mouse click at the given position.
-
-    Args:
-        position (Tuple[int, int]): The x and y coordinates of the click position.
-        button (str): The button to click ('left' or 'right').
-    """
-    if not validate_click_position(position):
-        raise ValueError('Click position is out of bounds.')
-    # Simulated click functionality
-    print(f'Performing {button} click at {position}.')
-
-
-def setup_autoclicker(clicks_per_second: float, position: Tuple[int, int]) -> None:
-    """
-    Setup and start the autoclicker with specified parameters.
-
-    Args:
-        clicks_per_second (float): The desired clicks per second.
-        position (Tuple[int, int]): The x and y coordinates for clicking.
-    """
-    interval = calculate_click_interval(clicks_per_second)
-    print(f'Set up autoclicker at {position} for {clicks_per_second} clicks/second, interval: {interval}s.')
-    # Here would be the loop to click at interval, not implemented for brevity
+    def clear_data(self):
+        self.write_data([])
