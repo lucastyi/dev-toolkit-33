@@ -1,39 +1,41 @@
-from typing import Optional, Callable
+import time
+import random
+import threading
 
 class AutoClicker:
-    """A class to represent an autoclicker."""
-    def __init__(self, interval: float, click_function: Callable[[], None]) -> None:
-        """Initialize the AutoClicker.
-
-        Args:
-            interval (float): The time interval between clicks in seconds.
-            click_function (Callable[[], None]): The function to be called for each click.
-        """
+    def __init__(self, interval, duration):
         self.interval = interval
-        self.click_function = click_function
-        self.running = False
+        self.duration = duration
+        self.is_running = False
 
-    def start(self) -> None:
-        """Start the autoclicker."""
-        self.running = True
-        while self.running:
-            self.click_function()
+    def start(self):
+        if self.interval <= 0:
+            raise ValueError("Interval must be positive")
+        if self.duration <= 0:
+            raise ValueError("Duration must be positive")
+        self.is_running = True
+        threading.Thread(target=self._click).start()
+
+    def _click(self):
+        end_time = time.time() + self.duration
+        while self.is_running and time.time() < end_time:
+            self._perform_click()
             time.sleep(self.interval)
+        self.is_running = False
 
-    def stop(self) -> None:
-        """Stop the autoclicker."""
-        self.running = False
+    def _perform_click(self):
+        # Simulating a mouse click
+        print(f"Click performed at: {time.time()}")
 
-# Example usage:
+    def stop(self):
+        self.is_running = False
+
 if __name__ == '__main__':
-    import time
-
-    def simple_click():
-        print("Clicked!")
-
-    autoclicker = AutoClicker(1.0, simple_click)  # Click every second
+    clicker = AutoClicker(1, 5)
     try:
-        autoclicker.start()
-    except KeyboardInterrupt:
-        autoclicker.stop()
-        print("AutoClicker stopped.")
+        clicker.start()
+    except ValueError as e:
+        print(f'Error: {e}')
+    time.sleep(10)
+    clicker.stop()
+    print('AutoClicker stopped')
