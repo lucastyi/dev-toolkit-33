@@ -1,20 +1,27 @@
-class InputValidationError(Exception):
+class AutoClickerError(Exception):
+    """Base class for exceptions in the AutoClicker application."""
     pass
 
-def validate_input(user_input):
-    if not isinstance(user_input, dict):
-        raise InputValidationError('Input must be a dictionary')
-    if 'x' not in user_input or 'y' not in user_input:
-        raise InputValidationError('Input must contain x and y keys')
-    if not isinstance(user_input['x'], int) or not isinstance(user_input['y'], int):
-        raise InputValidationError('x and y must be integers')
-    if user_input['x'] < 0 or user_input['y'] < 0:
-        raise InputValidationError('x and y must be non-negative')
+class InvalidClickFrequencyError(AutoClickerError):
+    """Exception raised for invalid click frequency values."""
+    def __init__(self, frequency):
+        self.frequency = frequency
+        super().__init__(f"Invalid click frequency: {frequency}")
 
-# Example usage within a main processing loop
-input_data = {'x': 100, 'y': 200}
-try:
-    validate_input(input_data)
-    # Proceed with processing
-except InputValidationError as e:
-    print(f'Input error: {e}')
+class ClickRateLimitExceededError(AutoClickerError):
+    """Exception raised when click rate limit is exceeded."""
+    def __init__(self, limit):
+        self.limit = limit
+        super().__init__(f"Click rate limit exceeded: {limit} clicks per second")
+
+class ClickTargetNotFoundError(AutoClickerError):
+    """Exception raised when the target for clicking is not found."""
+    def __init__(self, target):
+        self.target = target
+        super().__init__(f"Click target not found: {target}")
+
+class InitializationError(AutoClickerError):
+    """Exception raised during the initialization of the auto-clicker."""
+    def __init__(self, message):
+        super().__init__(message)
+
