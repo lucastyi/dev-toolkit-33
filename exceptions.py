@@ -1,27 +1,19 @@
 class AutoClickerError(Exception):
-    """Base class for exceptions in the AutoClicker application."""
-    pass
+    """Base class for all exceptions raised by the autoclicker."""
 
-class InvalidClickFrequencyError(AutoClickerError):
-    """Exception raised for invalid click frequency values."""
-    def __init__(self, frequency):
-        self.frequency = frequency
-        super().__init__(f"Invalid click frequency: {frequency}")
+class ClickRateError(AutoClickerError):
+    """Raised when click rate is invalid."""
+    def __init__(self, rate):
+        self.rate = rate
+        super().__init__(f'Invalid click rate: {rate}')
 
-class ClickRateLimitExceededError(AutoClickerError):
-    """Exception raised when click rate limit is exceeded."""
+class ConfigurationError(AutoClickerError):
+    """Raised when configuration is incorrect."""
+    def __init__(self, message):
+        super().__init__(f'Configuration error: {message}')
+
+class ClickLimitExceeded(AutoClickerError):
+    """Raised when click limit is exceeded."""
     def __init__(self, limit):
         self.limit = limit
-        super().__init__(f"Click rate limit exceeded: {limit} clicks per second")
-
-class ClickTargetNotFoundError(AutoClickerError):
-    """Exception raised when the target for clicking is not found."""
-    def __init__(self, target):
-        self.target = target
-        super().__init__(f"Click target not found: {target}")
-
-class InitializationError(AutoClickerError):
-    """Exception raised during the initialization of the auto-clicker."""
-    def __init__(self, message):
-        super().__init__(message)
-
+        super().__init__(f'Click limit exceeded: {limit}')
