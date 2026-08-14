@@ -1,33 +1,23 @@
-import json
-import logging
+import time
+import random
 
-class ProcessorError(Exception):
-    pass
+class AutoClicker:
+    def __init__(self, interval: float, click_count: int):
+        self.interval = interval
+        self.click_count = click_count
+        self.start_time = None
 
-def process_data(input_data):
-    if not isinstance(input_data, list):
-        raise ProcessorError('Input must be a list')
-    if len(input_data) == 0:
-        raise ProcessorError('Input list cannot be empty')
-    try:
-        results = []
-        for item in input_data:
-            if not isinstance(item, dict):
-                raise ProcessorError(f'Expected dict but got {type(item).__name__}')
-            result = json.dumps(item)
-            results.append(result)
-    except json.JSONDecodeError as e:
-        logging.error('JSON decoding error: %s', e)
-        raise ProcessorError('Error processing JSON data')
-    except Exception as e:
-        logging.error('Unexpected error: %s', e)
-        raise ProcessorError('An unexpected error occurred')
-    return results
+    def start(self):
+        print("AutoClicker started.")
+        self.start_time = time.time()
+        for _ in range(self.click_count):
+            self.perform_click()
+            time.sleep(self.interval)
+        print("AutoClicker completed.")
+
+    def perform_click(self):
+        print(f"Click at {time.time() - self.start_time:.2f} seconds")
 
 if __name__ == '__main__':
-    test_data = [{'name': 'Alice'}, {'name': 'Bob'}]
-    try:
-        output = process_data(test_data)
-        print(output)
-    except ProcessorError as e:
-        logging.error('Processing failed: %s', e)
+    clicker = AutoClicker(interval=random.uniform(0.1, 0.5), click_count=10)
+    clicker.start()
