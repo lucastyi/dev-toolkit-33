@@ -1,41 +1,33 @@
 import time
-import random
-import threading
 
 class AutoClicker:
-    def __init__(self, interval, duration):
-        self.interval = interval
-        self.duration = duration
-        self.is_running = False
+    def __init__(self, delay: float):
+        self.delay = delay
+        self.running = False
 
     def start(self):
-        if self.interval <= 0:
-            raise ValueError("Interval must be positive")
-        if self.duration <= 0:
-            raise ValueError("Duration must be positive")
-        self.is_running = True
-        threading.Thread(target=self._click).start()
-
-    def _click(self):
-        end_time = time.time() + self.duration
-        while self.is_running and time.time() < end_time:
-            self._perform_click()
-            time.sleep(self.interval)
-        self.is_running = False
-
-    def _perform_click(self):
-        # Simulating a mouse click
-        print(f"Click performed at: {time.time()}")
+        self.running = True
+        while self.running:
+            self.click()
+            time.sleep(self.delay)
 
     def stop(self):
-        self.is_running = False
+        self.running = False
 
-if __name__ == '__main__':
-    clicker = AutoClicker(1, 5)
+    def click(self):
+        # Here the actual clicking logic will be implemented
+        pass
+
+    def set_delay(self, new_delay: float):
+        if new_delay > 0:
+            self.delay = new_delay
+
+    def toggle(self):
+        self.running = not self.running
+
+if __name__ == "__main__":
+    clicker = AutoClicker(0.1)
     try:
         clicker.start()
-    except ValueError as e:
-        print(f'Error: {e}')
-    time.sleep(10)
-    clicker.stop()
-    print('AutoClicker stopped')
+    except KeyboardInterrupt:
+        clicker.stop()
