@@ -1,28 +1,30 @@
-import time
-import random
-import requests
+import re
 
-class NetworkError(Exception):
-    pass
+def is_valid_email(email):
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
 
-def retry_operation(func, max_retries=3, delay=2):
-    for attempt in range(max_retries):
-        try:
-            return func()
-        except (requests.ConnectionError, requests.Timeout) as e:
-            print(f"Attempt {attempt + 1} failed: {e}")
-            time.sleep(delay)
-    raise NetworkError(f"Maximum retries exceeded for {func.__name__}")
 
-def fetch_data(url):
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.json()
+def is_positive_integer(value):
+    if isinstance(value, int) and value > 0:
+        return True
+    return False
 
-if __name__ == '__main__':
-    url = 'https://api.example.com/data'
-    try:
-        data = retry_operation(lambda: fetch_data(url))
-        print('Data fetched successfully:', data)
-    except NetworkError as ne:
-        print(str(ne))
+
+def is_string_non_empty(s):
+    return isinstance(s, str) and bool(s)
+
+
+def is_valid_click_interval(interval):
+    return isinstance(interval, (int, float)) and interval > 0
+
+
+def validate_settings(settings):
+    if not is_valid_email(settings.get('email')):
+        raise ValueError('Invalid email format')
+    if not is_positive_integer(settings.get('click_count', 0)):
+        raise ValueError('Click count must be a positive integer')
+    if not is_valid_click_interval(settings.get('click_interval')):
+        raise ValueError('Click interval must be a positive number')
+    if not is_string_non_empty(settings.get('user_agent')):
+        raise ValueError('User agent cannot be empty')
