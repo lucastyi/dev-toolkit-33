@@ -1,23 +1,33 @@
 import time
-import random
 
-class AutoClicker:
-    def __init__(self, interval: float, click_count: int):
-        self.interval = interval
-        self.click_count = click_count
-        self.start_time = None
+class ClickProcessor:
+    def __init__(self, click_interval=0.1):
+        self.click_interval = click_interval
+        self.is_running = False
 
     def start(self):
-        print("AutoClicker started.")
-        self.start_time = time.time()
-        for _ in range(self.click_count):
+        self.is_running = True
+        while self.is_running:
             self.perform_click()
-            time.sleep(self.interval)
-        print("AutoClicker completed.")
+            time.sleep(self.click_interval)
+
+    def stop(self):
+        self.is_running = False
 
     def perform_click(self):
-        print(f"Click at {time.time() - self.start_time:.2f} seconds")
+        # Simulate a mouse click here
+        print('Click!')  # Replace with actual click implementation
 
+    def set_click_interval(self, interval):
+        if interval > 0:
+            self.click_interval = interval
+        else:
+            raise ValueError('Interval must be greater than 0')
+
+# Example usage:
 if __name__ == '__main__':
-    clicker = AutoClicker(interval=random.uniform(0.1, 0.5), click_count=10)
-    clicker.start()
+    processor = ClickProcessor(0.05)
+    try:
+        processor.start()
+    except KeyboardInterrupt:
+        processor.stop()
