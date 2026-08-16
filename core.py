@@ -1,33 +1,39 @@
+import json
 import time
+from typing import Any, Dict
 
-class AutoClicker:
-    def __init__(self, delay: float):
-        self.delay = delay
-        self.running = False
+class AutoClickerDataHandler:
+    def __init__(self, filepath: str):
+        self.filepath = filepath
+        self.data = self.load_data()
 
-    def start(self):
-        self.running = True
-        while self.running:
-            self.click()
-            time.sleep(self.delay)
+    def load_data(self) -> Dict[str, Any]:
+        try:
+            with open(self.filepath, 'r') as file:
+                return json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            return self.handle_error(e)
 
-    def stop(self):
-        self.running = False
+    def handle_error(self, error: Exception) -> Dict[str, Any]:
+        print(f'Error loading data: {error}')
+        return {}
 
-    def click(self):
-        # Here the actual clicking logic will be implemented
-        pass
+    def save_data(self) -> None:
+        with open(self.filepath, 'w') as file:
+            json.dump(self.data, file, indent=4)
 
-    def set_delay(self, new_delay: float):
-        if new_delay > 0:
-            self.delay = new_delay
+    def update_click_data(self, clicks: int) -> None:
+        self.data['clicks'] = self.data.get('clicks', 0) + clicks
+        self.save_data()
 
-    def toggle(self):
-        self.running = not self.running
+    def reset_click_data(self) -> None:
+        self.data['clicks'] = 0
+        self.save_data()
 
-if __name__ == "__main__":
-    clicker = AutoClicker(0.1)
-    try:
-        clicker.start()
-    except KeyboardInterrupt:
-        clicker.stop()
+    def get_click_data(self) -> int:
+        return self.data.get('clicks', 0)
+
+if __name__ == '__main__':
+    handler = AutoClickerDataHandler('click_data.json')
+    handler.update_click_data(5)
+    print(f'Total clicks: {handler.get_click_data()}')
