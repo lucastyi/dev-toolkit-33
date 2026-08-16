@@ -2,27 +2,27 @@ import json
 import os
 
 class DataHandler:
-    def __init__(self, file_path):
-        self.file_path = file_path
-        self.ensure_file_exists()
+    def __init__(self, directory='autoclicker_data'):
+        self.directory = directory
+        self._create_directory()
 
-    def ensure_file_exists(self):
-        if not os.path.isfile(self.file_path):
-            with open(self.file_path, 'w') as f:
-                json.dump([], f)
+    def _create_directory(self):
+        if not os.path.exists(self.directory):
+            os.makedirs(self.directory)
 
-    def read_data(self):
-        with open(self.file_path, 'r') as f:
-            return json.load(f)
+    def save_data(self, filename, data):
+        filepath = os.path.join(self.directory, f'{filename}.json')
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=4)
 
-    def write_data(self, data):
-        with open(self.file_path, 'w') as f:
-            json.dump(data, f)
+    def load_data(self, filename):
+        filepath = os.path.join(self.directory, f'{filename}.json')
+        if os.path.exists(filepath):
+            with open(filepath, 'r') as f:
+                return json.load(f)
+        return None
 
-    def append_data(self, new_entry):
-        data = self.read_data()
-        data.append(new_entry)
-        self.write_data(data)
+    def list_files(self):
+        return [f for f in os.listdir(self.directory) if f.endswith('.json')]
 
-    def clear_data(self):
-        self.write_data([])
+handler = DataHandler()
