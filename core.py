@@ -1,39 +1,30 @@
 import json
-import time
-from typing import Any, Dict
+from typing import Any, Dict, List
 
-class AutoClickerDataHandler:
-    def __init__(self, filepath: str):
-        self.filepath = filepath
-        self.data = self.load_data()
+class AutoClickerData:
+    def __init__(self):
+        self.clicks: List[Dict[str, Any]] = []
 
-    def load_data(self) -> Dict[str, Any]:
-        try:
-            with open(self.filepath, 'r') as file:
-                return json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            return self.handle_error(e)
+    def add_click(self, x: int, y: int, timestamp: float) -> None:
+        click_info = {'x': x, 'y': y, 'timestamp': timestamp}
+        self.clicks.append(click_info)
 
-    def handle_error(self, error: Exception) -> Dict[str, Any]:
-        print(f'Error loading data: {error}')
-        return {}
+    def to_json(self) -> str:
+        return json.dumps(self.clicks)
 
-    def save_data(self) -> None:
-        with open(self.filepath, 'w') as file:
-            json.dump(self.data, file, indent=4)
+    def from_json(self, data: str) -> None:
+        self.clicks = json.loads(data)
 
-    def update_click_data(self, clicks: int) -> None:
-        self.data['clicks'] = self.data.get('clicks', 0) + clicks
-        self.save_data()
+    def clear_clicks(self) -> None:
+        self.clicks.clear()
 
-    def reset_click_data(self) -> None:
-        self.data['clicks'] = 0
-        self.save_data()
+    def get_click_count(self) -> int:
+        return len(self.clicks)
 
-    def get_click_data(self) -> int:
-        return self.data.get('clicks', 0)
 
-if __name__ == '__main__':
-    handler = AutoClickerDataHandler('click_data.json')
-    handler.update_click_data(5)
-    print(f'Total clicks: {handler.get_click_data()}')
+# Example of usage:
+auto_clicker_data = AutoClickerData()
+auto_clicker_data.add_click(100, 200, 1630454400.0)
+auto_clicker_data.add_click(150, 250, 1630454410.0)
+json_data = auto_clicker_data.to_json()
+auto_clicker_data.clear_clicks()  # Clear clicks after processing
