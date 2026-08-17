@@ -1,19 +1,37 @@
 import logging
-from logging.handlers import RotatingFileHandler
+import time
+from functools import wraps
 
-def setup_logger(log_file='app.log', max_bytes=1e6, backup_count=3):
-    logger = logging.getLogger('my_autoclicker')
-    logger.setLevel(logging.DEBUG)
+# Set up logging configuration
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-    handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=backup_count)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
+# Retry decorator
 
-    if not logger.hasHandlers():
-        logger.addHandler(handler)
+def retry(max_attempts=3, delay=2, exception=(Exception,)):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            attempts = 0
+            while attempts < max_attempts:
+                try:
+                    return func(*args, **kwargs)
+                except exception as e:
+                    attempts += 1
+                    logger.warning(f'Attempt {attempts} failed: {e}')
+                    if attempts == max_attempts:
+                        logger.error('Max attempts reached. Operation failed.')
+                        raise
+                    time.sleep(delay)
+                    logger.info(f'Retrying in {delay} seconds...')
+        return wrapper
+    return decorator
 
-    return logger
-
-if __name__ == '__main__':
-    log = setup_logger()
-    log.info('Logger is set up and ready to go!')
+# Example network operation
+@retry(max_attempts=5, delay=1, exception=(ConnectionError, TimeoutError))
+def fetch_data(url):
+    # Simulating a network operation
+    logger.info(f'Fetching data from {url}')
+    if url == 'http://fail.com':
+        raise ConnectionError('Simulated connection error')
+    return {'data': 'Success'}
