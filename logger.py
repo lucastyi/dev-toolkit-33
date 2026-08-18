@@ -1,37 +1,68 @@
 import logging
-import time
-from functools import wraps
 
-# Set up logging configuration
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+class Logger:
+    """
+    A simple logger class for logging messages.
+    
+    Attributes:
+        logger (logging.Logger): The logger instance.
+    """
 
-# Retry decorator
+    def __init__(self, name: str) -> None:
+        """
+        Initializes Logger with a given name.
+        
+        Args:
+            name (str): The name of the logger.
+        """
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(logging.DEBUG)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
 
-def retry(max_attempts=3, delay=2, exception=(Exception,)):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            attempts = 0
-            while attempts < max_attempts:
-                try:
-                    return func(*args, **kwargs)
-                except exception as e:
-                    attempts += 1
-                    logger.warning(f'Attempt {attempts} failed: {e}')
-                    if attempts == max_attempts:
-                        logger.error('Max attempts reached. Operation failed.')
-                        raise
-                    time.sleep(delay)
-                    logger.info(f'Retrying in {delay} seconds...')
-        return wrapper
-    return decorator
+    def debug(self, message: str) -> None:
+        """
+        Logs a debug message.
+        
+        Args:
+            message (str): The debug message to log.
+        """
+        self.logger.debug(message)
 
-# Example network operation
-@retry(max_attempts=5, delay=1, exception=(ConnectionError, TimeoutError))
-def fetch_data(url):
-    # Simulating a network operation
-    logger.info(f'Fetching data from {url}')
-    if url == 'http://fail.com':
-        raise ConnectionError('Simulated connection error')
-    return {'data': 'Success'}
+    def info(self, message: str) -> None:
+        """
+        Logs an info message.
+        
+        Args:
+            message (str): The info message to log.
+        """
+        self.logger.info(message)
+
+    def warning(self, message: str) -> None:
+        """
+        Logs a warning message.
+        
+        Args:
+            message (str): The warning message to log.
+        """
+        self.logger.warning(message)
+
+    def error(self, message: str) -> None:
+        """
+        Logs an error message.
+        
+        Args:
+            message (str): The error message to log.
+        """
+        self.logger.error(message)
+
+    def critical(self, message: str) -> None:
+        """
+        Logs a critical message.
+        
+        Args:
+            message (str): The critical message to log.
+        """
+        self.logger.critical(message)
