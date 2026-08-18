@@ -1,33 +1,41 @@
 import time
+import random
 
-class ClickProcessor:
-    def __init__(self, click_interval=0.1):
-        self.click_interval = click_interval
-        self.is_running = False
+class Clicker:
+    def __init__(self, click_delay=0.1):
+        self.click_delay = click_delay
+        self.running = False
 
     def start(self):
-        self.is_running = True
-        while self.is_running:
-            self.perform_click()
-            time.sleep(self.click_interval)
+        self.running = True
+        self._process_loop()
 
     def stop(self):
-        self.is_running = False
+        self.running = False
 
-    def perform_click(self):
-        # Simulate a mouse click here
-        print('Click!')  # Replace with actual click implementation
+    def _process_loop(self):
+        while self.running:
+            position = self.get_click_position()
+            if self.validate_position(position):
+                self.simulate_click(position)
+                time.sleep(self.click_delay)
+            else:
+                print('Invalid click position: {}'.format(position))
 
-    def set_click_interval(self, interval):
-        if interval > 0:
-            self.click_interval = interval
-        else:
-            raise ValueError('Interval must be greater than 0')
+    def get_click_position(self):
+        # Simulate obtaining a random position
+        return (random.randint(0, 1920), random.randint(0, 1080))
 
-# Example usage:
+    def validate_position(self, position):
+        x, y = position
+        return isinstance(x, int) and isinstance(y, int) and 0 <= x <= 1920 and 0 <= y <= 1080
+
+    def simulate_click(self, position):
+        print(f'Simulated click at {position}')
+
 if __name__ == '__main__':
-    processor = ClickProcessor(0.05)
+    clicker = Clicker(click_delay=0.5)
     try:
-        processor.start()
+        clicker.start()
     except KeyboardInterrupt:
-        processor.stop()
+        clicker.stop()  # Ensures graceful stop after an interrupt
