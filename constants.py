@@ -1,29 +1,26 @@
-from typing import Final
+import json
+import os
 
-# Constants for the autoclicker module
-auto_click_interval: Final[float] = 0.1  # Interval between clicks in seconds
-max_clicks: Final[int] = 1000  # Maximum number of clicks
-mouse_button: Final[str] = 'left'  # Mouse button to be used for clicking
-click_location: Final[tuple[int, int]] = (500, 500)  # Default click location
+DEFAULTS = {
+    'click_interval': 0.1,
+    'max_clicks': 1000,
+    'sensitivity': 0.5,
+    'click_type': 'left',
+}
 
+CONFIG_FILE = 'config.json'
 
-def get_click_params() -> dict[str, float | int | str | tuple[int, int]]:
-    """Retrieve the parameters for clicking.
-    
-    Returns a dictionary containing the click parameters:
-    - auto_click_interval: The interval between clicks.
-    - max_clicks: The maximum number of clicks that can be performed.
-    - mouse_button: The mouse button designated for clicking.
-    - click_location: The tuple representing the x and y coordinates for the click.
-    """
-    return {
-        'auto_click_interval': auto_click_interval,
-        'max_clicks': max_clicks,
-        'mouse_button': mouse_button,
-        'click_location': click_location,
-    }
-
+def load_config(file_path=CONFIG_FILE):
+    if not os.path.exists(file_path):
+        return DEFAULTS
+    with open(file_path, 'r') as file:
+        try:
+            config = json.load(file)
+            return {**DEFAULTS, **config}
+        except json.JSONDecodeError:
+            print('Error reading configuration, using defaults.')
+            return DEFAULTS
 
 if __name__ == '__main__':
-    params = get_click_params()
-    print(params)  # Example usage of the function
+    config = load_config()
+    print(config)
