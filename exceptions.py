@@ -1,26 +1,32 @@
-class AutoClickerException(Exception):
-    """Base class for exceptions in the AutoClicker toolkit."""
+class AutoClickerError(Exception):
+    """Base class for all autoclicker exceptions."""
     pass
 
-class ClickLimitExceeded(AutoClickerException):
-    """Exception raised when the click limit is exceeded."""
-    def __init__(self, limit):
-        super().__init__(f"Click limit of {limit} exceeded.")
-        self.limit = limit
-
-class InvalidClickRate(AutoClickerException):
-    """Exception raised for invalid click rate settings."""
+class ClickRateError(AutoClickerError):
+    """Exception raised when the click rate is invalid."""
     def __init__(self, rate):
-        super().__init__(f"Invalid click rate: {rate}.")
+        super().__init__(f"Invalid click rate: {rate}")
         self.rate = rate
 
-class ClickerNotRunning(AutoClickerException):
-    """Exception raised when trying to stop or modify clicker not running."""
-    def __init__(self):
-        super().__init__("Clicker is not currently running.")
-
-class ConfigurationError(AutoClickerException):
-    """Exception raised for configuration-related issues."""
+class ConfigurationError(AutoClickerError):
+    """Exception raised for configuration issues."""
     def __init__(self, message):
-        super().__init__(f"Configuration error: {message}")
-        self.message = message
+        super().__init__(message)
+
+class ClickLimitExceeded(AutoClickerError):
+    """Exception raised when click limit is exceeded."""
+    def __init__(self, limit):
+        super().__init__(f"Click limit exceeded: {limit}")
+        self.limit = limit
+
+class RuntimeError(AutoClickerError):
+    """Exception raised for runtime issues in autoclicker."""
+    def __init__(self, message):
+        super().__init__(message)
+
+class ClickFrequencyError(AutoClickerError):
+    """Exception raised for invalid click frequency."""
+    def __init__(self, frequency):
+        super().__init__(f"Invalid click frequency: {frequency}")
+        self.frequency = frequency
+
