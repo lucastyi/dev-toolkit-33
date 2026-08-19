@@ -1,27 +1,32 @@
-import os
+CLICK_INTERVAL = 0.01
+DEFAULT_DURATION = 60
+CLICK_COUNT_LIMIT = 1000
 
-DEFAULT_CLICK_INTERVAL = 0.01
-DEFAULT_CLICK_COUNT = 100
-DEFAULT_MOUSE_BUTTON = 'left'
-DEFAULT_SCREEN_RESOLUTION = (1920, 1080)
-DEFAULT_LOG_LEVEL = 'INFO'
+KEYBOARD_KEYS = {
+    'start': 'F9',
+    'stop': 'F10',
+    'pause': 'F11',
+    'resume': 'F12',
+}
 
-# Performance tuning constants
-MAX_CONCURRENT_CLICKS = os.cpu_count() or 1
-MOUSE_MOVEMENT_SMOOTHNESS = 0.1
-AUTO_CLICKER_VERSION = '1.0.0'
+MOUSE_BUTTONS = {
+    'left': 'left_button',
+    'right': 'right_button',
+    'middle': 'middle_button',
+}
 
-# Predefined color codes for UI elements
-COLOR_PRIMARY = '#3498db'
-COLOR_SECONDARY = '#2ecc71'
-COLOR_ERROR = '#e74c3c'
-COLOR_WARNING = '#f39c12'
-COLOR_SUCCESS = '#27ae60'
+# This dictionary holds the settings for the autoclicker.
+AUTOD_SETTINGS = {
+    'click_interval': CLICK_INTERVAL,
+    'duration': DEFAULT_DURATION,
+    'max_clicks': CLICK_COUNT_LIMIT,
+    'keyboard_keys': KEYBOARD_KEYS,
+    'mouse_buttons': MOUSE_BUTTONS,
+}
 
-# Configuration file paths
-CONFIG_DIR = os.path.join(os.getenv('APPDATA'), 'dev-toolkit-33')
-CONFIG_FILE = os.path.join(CONFIG_DIR, 'settings.json')
+def get_setting(setting_name):
+    return AUTOD_SETTINGS.get(setting_name, None)
 
-# Timeout settings
-GUI_TIMEOUT = 5
-API_TIMEOUT = 10
+def set_setting(setting_name, value):
+    if setting_name in AUTOD_SETTINGS:
+        AUTOD_SETTINGS[setting_name] = value
